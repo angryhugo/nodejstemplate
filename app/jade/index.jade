@@ -1,0 +1,183 @@
+extends layout
+
+block title
+    | #{title}
+append head
+    link(rel='stylesheet', href='/static/css/styles.css')
+    link(rel='stylesheet', href='/assets/vendor/bootstrap/css/bootstrap.css')
+    link(rel='stylesheet', href='/assets/vendor/bootstrap/css/datetimepicker.css')
+block body
+    body
+        div#wrap
+            div#side
+                div#inside
+                    div#name.name-content #{profile.name}
+                    img(src='/static/images/a.jpg',width='200px')
+                    div.contact-info-title Phone
+                    div#phone.contact-info #{profile.phone}
+                    div.contact-info-title Email
+                    div#email.contact-info #{profile.email}
+                    div.contact-info-title Address
+                    div#address.contact-info #{profile.address}
+                    div
+                        button#btn-show-edit-profile.btn(data-toggle='modal',data-target='#edit-profile',type='button') 编辑
+            div#main
+                div#menu
+                    ul
+                        li
+                            a(href='#', style='background:url(/static/images/img01.jpg) no-repeat top left') Download CV
+                        li
+                            a(href='#', style='background:url(/static/images/img02.jpg) no-repeat top left') Print CV
+                        li
+                            a(href='#', style='background:url(/static/images/img03.jpg) no-repeat top left') Email me
+                        li
+                            a(href='#', style='background:url(/static/images/img04.jpg) no-repeat top left') View Photo
+                
+                div.basic-info-title.blue
+                    | Previous employment
+                div#employment
+                    if employmentList.length > 0
+                        for employment in employmentList
+                            div.basic-info-container.border-bottom
+                                div.content-title
+                                    span 
+                                        | #{employment.company}
+                                    span.content-period 
+                                        | #{employment.period}
+                                div.content-position
+                                    | #{employment.position}
+                                p
+                                    | #{employment.description}
+                    else
+                        div.basic-info-container No Employment Info
+                
+                div.basic-info-title.pink
+                    | Professional skills
+                div#skills
+                    div.basic-info-container
+                        p.
+                            #{skills.description}
+                        div.skill-list.for-left
+                            p Software
+                            ul(data-skilltype='0')
+                                if skills.softwareList.length>0
+                                    - for (var i=0;i<skills.softwareList.length;i++)
+                                        li(data-index='#{skills.softwareList[i].id}') #{skills.softwareList[i].software}
+                                else
+                                    li No Software Skills
+                        div.skill-list.for-left
+                            p Languages
+                            ul(data-skilltype='1')
+                                if skills.languageList.length>0
+                                    - for (var i=0;i<skills.languageList.length;i++)
+                                        li(data-index='#{skills.languageList[i].id}') #{skills.languageList[i].language}
+                                else
+                                    li No Language Skills
+                
+                div.basic-info-title.yellow(style='margin-top:130px')
+                    | Education
+                div.add-education
+                    button.btn.btn-right#btn-show-add-education(data-toggle='modal', data-target='#edit-education', type='button') 添加
+                
+                div#education
+                    if educationList.length > 0
+                        - for (var i=0;i<educationList.length;i++)
+                            div.basic-info-container.border-bottom(id='education-list#{educationList[i].id}')
+                                div.content-title
+                                    span(id='university#{educationList[i].id}')
+                                        | #{educationList[i].university}
+                                    span.content-period(id='university-period#{educationList[i].id}')
+                                        | #{educationList[i].period}
+                                    span
+                                        button.btn.btn-delete-education.btn-right(type='button', data-index='#{educationList[i].id}') 删除
+                                    span 
+                                        button.btn.btn-show-edit-education.btn-right(data-toggle='modal', data-target='#edit-education', data-index='#{educationList[i].id}',type='button') 编辑                                  
+                                div.content-position(id='university-major#{educationList[i].id}')
+                                    | #{educationList[i].major}
+                                p(id='university-description#{educationList[i].id}')
+                                    | #{educationList[i].description}
+                    else
+                        div No Education Info
+
+
+
+        div#edit-profile.modal.hide.fade
+            div.modal-header
+                button.close(type='button',data-dismiss='modal',aria-hidden='true') &times;
+                h3
+                    | edit profile
+            div.modal-body
+                form#edit-profile-form(action='/profile', method='POST')
+                    div.edit-item
+                        label(for='edit-name') Name:
+                        input#edit-name(type='text',size='22',name='username')
+                    div.edit-item
+                        label(for='edit-phone') Phone:
+                        input#edit-phone(type='text',size='22',name='phone')
+                    div.edit-item
+                        label(for='edit-email') Email:
+                        input#edit-email(type='text',size='22',name='email')
+                    div.edit-item
+                        label(for='edit-address') Address:
+                        input#edit-address(type='text',size='22',name='address')
+            div.modal-footer
+                button.btn(data-dismiss='modal',aria-hidden='true') 关闭
+                button#btn-edit-profile-submit.btn.btn-primary 保存
+
+        div#edit-education.modal.hide.fade
+            div.modal-header
+                button.close(type='button',data-dismiss='modal',aria-hidden='true') &times;
+                h3
+                    | edit education
+            div.modal-body
+                form#edit-education-form(action='/education', method='POST')
+                    input#education-list-index(type='hidden', name='edit_index', value='')
+                    div.edit-item
+                        label(for='edit-university') University:
+                        input#edit-university(type='text',name='edit_university')
+                    div.edit-item
+                        label(for='edit-university-period-from') From:
+                        input#edit-university-period-from.form_datetime(type='text',name='edit_period_from',readonly)
+                        span.add-on
+                            i.icon-th
+                    div.edit-item
+                        label(for='edit-university-period-to') To:
+                        input#edit-university-period-to.form_datetime(type='text',name='edit_period_to',readonly)
+                        span.add-on
+                            i.icon-th
+                    div.edit-item
+                        label(for='edit-university-major') Major:
+                        input#edit-university-major(type='text',name='edit_university_major')
+                    div.edit-item
+                        label(for='edit-university-description') Description:
+                        textarea#edit-university-description.edit-description(type='text',name='edit_university_description')
+            div.modal-footer
+                button.btn(data-dismiss='modal',aria-hidden='true') 关闭
+                button#btn-edit-education-submit.btn.btn-primary(data-dismiss='modal') 保存
+
+        //- div#add-skills.modal.hide.fade
+        //-     div.modal-header
+        //-         button.close(type='button',data-dismiss='modal',aria-hidden='true') &times;
+        //-         h3
+        //-             | add skills
+        //-     div.modal-body
+        //-         form#add-skills-form(action='/education', method='POST')
+        //-             input#skill-type-index(type='hidden', name='type_index', value='')
+        //-             div.edit-item
+        //-                 label(for='edit-university') University:
+        //-                 input#edit-university(type='text',name='edit_university')
+        //-             div.edit-item
+        //-                 label(for='edit-university-period-from') From:
+        //-                 input#edit-university-period-from.form_datetime(type='text',name='edit_period_from',readonly)
+        //-                 span.add-on
+        //-                     i.icon-th
+        //-     div.modal-footer
+        //-         button.btn(data-dismiss='modal',aria-hidden='true') 关闭
+        //-         button#btn-edit-education-submit.btn.btn-primary(data-dismiss='modal') 保存
+
+        script(type='text/javascript', src='/assets/vendor/jquery/jquery-1.9.1.js')
+        script(type='text/javascript', src='/assets/vendor/jquery/jquery.validate.js')
+        script(type='text/javascript', src='/assets/vendor/jquery/jquery.validate.messages_cn.js')
+        script(type='text/javascript', src='/assets/vendor/bootstrap/js/bootstrap.js')
+        script(type='text/javascript', src='/assets/vendor/bootstrap/js/bootstrap-datetimepicker.js')
+        script(type='text/javascript', src='/assets/js/test.js')
